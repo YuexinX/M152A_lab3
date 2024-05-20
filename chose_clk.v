@@ -26,12 +26,12 @@ onehz_clk,
 twohz_clk,
 adj,
 //output
-clk
+sel_clk
     );
 input onehz_clk;
 input twohz_clk;
 input adj;
-output wire clk;
+output sel_clk;
 reg clk_temp;
 
 always @ (*) begin
@@ -41,7 +41,7 @@ always @ (*) begin
         clk_temp = onehz_clk;
 end
 
-assign clk = clk_temp;
+assign sel_clk = clk_temp;
 
     
 endmodule

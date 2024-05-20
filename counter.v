@@ -29,8 +29,8 @@ pause,
 adj,
 sel,
 //output
-secCntr,
-minCntr 
+seconds,
+minutes 
     );
     
 input onehz_clk;
@@ -39,65 +39,78 @@ input adj;
 input rst;
 input sel;
 input pause;
-output [5:0] second;
-output [5:0] minute;
+output [5:0] seconds;
+output [5:0] minutes;
 
-reg [5:0] secCntr = 5'b0;
-reg [5:0] minCntr = 5'b0;
-reg pause_sig = 0;
-wire clk;
+reg [5:0] minutes_temp = 5'b0;
+reg [5:0] seconds_temp = 5'b0;
+reg is_pause = 0;
+wire used_clk;
 
-
-chose_clk choose(.onehz_clk(onehz_clk), .twohz_clk(twohz_clk), .adj(adj), .clk(clk));
-
+chose_clk choose(.onehz_clk(onehz_clk), .twohz_clk(twohz_clk), .adj(adj), .sel_clk(used_clk));
 
 
-always@ (posedge pause) begin
-    pause_sig <= ~pause_sig;
-end
-
-always @ (posedge clk or posedge rst) begin
-    if (rst) begin
-        secCntr <= 5'b0;
-        minCntr <= 5'b0;
+always @ (posedge pause) begin
+        is_pause <= ~is_pause;
     end
-    else if (pause_sig) begin
-        secCntr <= secCntr;
-        minCntr <= minCntr;
-    end
-    else begin
-        secCntr <= second;
-        minCntr <= minute;
-        if(adj) begin
-            if (sel) begin
-                if (secCntr == 59)
-                    secCntr <= 5'b0;
-                else
-                    secCntr <= secCntr + 1;
-            end    
-            else begin
-                if (minCntr == 59)
-                    minCntr <= 5'b0;
-                else
-                    minCntr <= minCntr + 1;
-            end
-        end
-        else begin
-            if (secCntr == 59) begin
-            
-                secCntr <= 5'b0;
-                if (minCntr == 59)
-                    minCntr <= 5'b0;
-                else 
-                    minCntr <= minCntr + 1;
-            end   
-            else 
-                secCntr <= secCntr + 1;
-        end
-    end
-end
+	always @ (posedge used_clk or posedge rst) begin
+		// Reset 
+		if (rst) begin
+			minutes_temp <= 5'b0;
+			seconds_temp <= 5'b0;
+		end
+		// Not reset (Clock mode)
+		else begin
+		if (~is_pause) begin
+			minutes_temp <= minutes;
+			seconds_temp <= seconds;
+			// Adjust Clock Mode
+			if (adj) begin
+				// Adjust seconds, freeze minutes
+				if (sel) begin
+					// If max seconds, then reset seconds
+					if (seconds_temp == 59) begin
+						seconds_temp <= 5'b0;
+					end
+					// No overflow in seconds, so increment seconds
+					else begin
+						seconds_temp <= seconds_temp + 5'b1;
+					end
+				end
+				// Adjust minutes, freeze seconds
+				else begin
+					// If max minutes, then reset minutes
+					if (minutes_temp == 59) begin
+						minutes_temp <= 5'b0;
+					end
+					// No overflow in minutes, so increment minutes
+					else begin
+						minutes_temp <= minutes_temp + 5'b1;
+					end
+				end
+			end
+			// Normal Clock Mode
+			else begin
+                // If max stopwatch time, then reset both minutes and seconds
+                if (minutes_temp == 59 && seconds_temp == 59) begin
+                    minutes_temp <= 5'b0;
+                    seconds_temp <= 5'b0;
+                end
+                // If max seconds, then reset seconds, increment minutes
+                else if (minutes_temp != 59 && seconds_temp == 59) begin
+                    minutes_temp <= minutes_temp + 5'b1;
+                    seconds_temp <= 5'b0;
+                end
+                // No overflow in minutes or seconds, so increment seconds
+                else begin
+                    seconds_temp <= seconds_temp + 5'b1;
+                end
+			end
+		end
+		end
+	end
 
-assign minute = minCntr;
-assign second = secCntr;
-    
+	assign minutes = minutes_temp;
+	assign seconds = seconds_temp;
+
 endmodule
