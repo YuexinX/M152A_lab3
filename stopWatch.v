@@ -40,6 +40,7 @@ sel, adj, rst, pause, clk
     wire blink_clk;
     wire display_clk;
 
+
     
     SetClk setClk(.sys_clk(clk), .rst(rst), .onehz_clk(onehz_clk), .twohz_clk(tick_clk), .blink_clk(blink_clk), .fast_clk(display_clk));
     
@@ -70,6 +71,8 @@ sel, adj, rst, pause, clk
     digit_to_segment tens_second(.num(second_10), .segment(middle_right_num));
     digit_to_segment ones_second(.num(second_1), .segment(right_num));
     
+
+
     
     seven_segment display(.seg(seg), .an(an), .display_clk(display_clk), .blink_clk(blink_clk), .sel(sel), .adj(adj), .left(left_num), .middle_left(middle_left_num), .middle_right(middle_right_num), .right(right_num));
     

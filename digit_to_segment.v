@@ -33,16 +33,16 @@ segment
     
     always @ (num) begin
         case (num) 
-            0: segment_temp = 7'b0000001; 
-            1: segment_temp = 7'b1001111; 
-            2: segment_temp = 7'b0010010; 
-            3: segment_temp = 7'b0000110; 
-            4: segment_temp = 7'b1001100; 
-            5: segment_temp = 7'b0100100; 
-            6: segment_temp = 7'b0100000; 
-            7: segment_temp = 7'b0001111; 
+            0: segment_temp = 7'b1000000; 
+            1: segment_temp = 7'b1111001; 
+            2: segment_temp = 7'b0100100; 
+            3: segment_temp = 7'b0110000; 
+            4: segment_temp = 7'b0011001; 
+            5: segment_temp = 7'b0010010; 
+            6: segment_temp = 7'b0000010; 
+            7: segment_temp = 7'b1111000; 
             8: segment_temp = 7'b0000000; 
-            9: segment_temp = 7'b0000100; 
+            9: segment_temp = 7'b0010000; 
         endcase
     end
     assign segment = segment_temp;
